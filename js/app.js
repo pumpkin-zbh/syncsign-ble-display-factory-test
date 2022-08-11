@@ -27,7 +27,7 @@ const encryptionMethod = 0
 let templateFile = null;
 
 async function onScanButtonClick() {
-  let options = { filters: [{ services: [SERVICE_UUID] }] };
+  let options = { filters: [{ name: 'SyncSign-Display-Lite' },{ name: 'SyncSign' } ] };
 
   bluetoothDevice = null;
   console.log("Requesting Bluetooth Device...");
@@ -40,36 +40,13 @@ async function onScanButtonClick() {
         onDisconnected
       );
 
-      await connectToBluetoothDevice(device);
+      await connect();
     })
     .catch((error) => {
       console.log("Argh! " + error);
     });
 }
-function connectToBluetoothDevice(device) {
-  console.log(device)
-  const abortController = new AbortController();
 
-  device.addEventListener('advertisementreceived', (event) => {
-    log('> Received advertisement from "' + device.name + '"...');
-    // Stop watching advertisements to conserve battery life.
-    abortController.abort();
-    log('Connecting to GATT Server from "' + device.name + '"...');
-    device.gatt.connect()
-    .then(() => {
-      log('> Bluetooth device "' +  device.name + ' connected.');
-    })
-    .catch(error => {
-      log('Argh! ' + error);
-    });
-  }, { once: true });
-
-  log('Watching advertisements from "' + device.name + '"...');
-  device.watchAdvertisements({ signal: abortController.signal })
-  .catch(error => {
-    log('Argh! ' + error);
-  });
-}
 async function connect() {
   try {
     charTxtWrite = null;
@@ -116,14 +93,13 @@ async function enumerateGatt(server) {
       }
       if (characteristic.uuid === CHAR_TXT_WRITE) {
         charTxtWrite = characteristic;
-        if (templateFile === true) document.querySelector("#send").disabled = false;
-        document.querySelector("#disconnect").disabled = false;
       }
       if (characteristic.uuid === CHAR_TEMP_WRITE) {
         charTempWrite = characteristic;
-        if (templateFile === true) document.querySelector("#send").disabled = false;
-        document.querySelector("#disconnect").disabled = false;
       }
+      document.querySelector("#disconnect").disabled = false;
+      document.querySelector("#upload-temp").disabled = false;
+      if (templateFile) document.querySelector("#send").disabled = false;
       return descriptors.join("\n");
     });
 
@@ -245,6 +221,7 @@ function onDisconnected(event) {
   console.log("> Bluetooth Device disconnected");
   document.querySelector("#send").disabled = true;
   document.querySelector("#disconnect").disabled = true;
+  document.querySelector("#upload-temp").disabled = true;
 }
 
 function handleNotifications(event) {
@@ -343,7 +320,7 @@ reader.onload = async function fileReadCompleted() {
   data = concatArrayBuffer(data, fdata);
   console.log(data)
   templateFile = data
-  if (bluetoothDevice) document.querySelector("#send").disabled = false;
+  document.querySelector("#send").disabled = false;
 };
 reader.readAsArrayBuffer(files[0]);
 
