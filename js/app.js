@@ -27,7 +27,7 @@ const encryptionMethod = 0
 let templateFile = null;
 
 async function onScanButtonClick() {
-  let options = { filters: [{ name: 'SyncSign-Display-Lite' },{ name: 'SyncSign' } ] };
+  let options = { filters: [{ services: [SERVICE_UUID] },{ name: 'SyncSign-Display-Lite' },{ name: 'SyncSign' } ] };
 
   bluetoothDevice = null;
   console.log("Requesting Bluetooth Device...");
