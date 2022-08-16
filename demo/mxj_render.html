@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SyncSign Display BLE Control Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0-beta3/js/bootstrap.bundle.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>SyncSign Display Example</h1>
+      <p>Render display over BLE</p>
+      <form>
+        <button class="btn btn-primary" id="scan">Scan</button>
+        <button class="btn btn-primary" id="disconnect" disabled>Disconnect</button>
+        <div class="file-container" style="display:none;position:relative;overflow: hidden;vertical-align:middle">
+            <button class="btn btn-primary fileinput-button" id="upload-temp" type="button">Upload template</button>
+            <input type="file" id="jobData" accept=".bin" onchange="loadFile(this.files)" style="position:absolute;top:0;left:0;font-size:34px; opacity:0">
+        </div>
+        <hr />
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="inputGroupSelect01">模板</label>
+            <select class="form-select" id="inputGroupSelect01" onchange="selectTemp(this)">
+              <option selected value="0">空闲中</option>
+              <option value="1">预约中</option>
+              <option value="2">占用中</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">标题</span>
+          <input
+            type="text"
+            id="name"
+            class="form-control"
+            placeholder="<=4 characters"
+          />
+        </div>
+        <div class="input-group mb-3" style="display: none;" id="status-box">
+          <span class="input-group-text">当前状态</span>
+          <input
+            type="text"
+            id="status"
+            class="form-control"
+            placeholder="已预订/已占用"
+          />
+        </div>
+        <div class="input-group mb-3" style="display: none;" id="busy-time-box">
+          <span class="input-group-text">占用时间</span>
+          <input
+            type="text"
+            id="busy-time"
+            class="form-control"
+            placeholder="10:00-11:00"
+          />
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">工位编号</span>
+          <input
+            type="text"
+            id="station-number"
+            class="form-control"
+            placeholder="工位编号: SH01"
+          />
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text">时间</span>
+            <input
+              type="text"
+              id="time"
+              class="form-control"
+              placeholder="2020.09.09星期五"
+            />
+          </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">QR Code</span>
+          <input
+            type="text"
+            id="qrcode"
+            class="form-control"
+            placeholder="https://xxxx"
+          />
+        </div>
+        <button class="btn btn-primary" id="send" disabled>Send to Display</button>
+        <hr/>
+        <p>
+          <span id="data-sent">N</span> /
+          <span id="draw-screen">N</span>
+        </p>
+      </form>
+    </div>
+
+    <script>
+      log = console.log;
+      function isWebBluetoothEnabled() {
+        if (navigator.bluetooth) {
+          return true;
+        } else {
+          console.log(
+            "Web Bluetooth API is not available.\n" +
+              'Please make sure the "Experimental Web Platform features" flag is enabled.'
+          );
+          return false;
+        }
+      }
+    </script>
+    <script src="../js/app.js"></script>
+    <script src="../js/slip/index.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+      document
+        .querySelector("#scan")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          if (isWebBluetoothEnabled()) onScanButtonClick();
+        });
+      document
+        .querySelector("#disconnect")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          if (isWebBluetoothEnabled()) onDisconnectButtonClick();
+        });
+      document
+        .querySelector("#send")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          if (isWebBluetoothEnabled()) onSendTextBymxj();
+        });
+    </script>
+  </body>
+</html>

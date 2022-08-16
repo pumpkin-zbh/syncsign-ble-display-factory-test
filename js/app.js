@@ -4,7 +4,7 @@ let charTxtWrite;
 let charTempWrite;
 
 const DEFAULT_BLE_MTU = 20;
-const TXT_ONLY_MAGIC = 0x0D;
+const TXT_ONLY_MAGIC = 0x0d;
 
 const SERVICE_UUID = 0xfff0;
 const CHAR_NOTIFY = "0000fff2-0000-1000-8000-00805f9b34fb"; // 0xFFF1
@@ -21,13 +21,20 @@ const ACK_SUBTYPE_DRAW_ERR = 0x01;
 
 let bleMtuSize = DEFAULT_BLE_MTU;
 
-const SUBTYPE_DRAW_SAVE_BINARY_TEMPLATE = 0x04
-const encryptionMethod = 0
+const SUBTYPE_DRAW_SAVE_BINARY_TEMPLATE = 0x04;
+const encryptionMethod = 0;
 
 let templateFile = null;
+let nowTemp = 0;
 
 async function onScanButtonClick() {
-  let options = { filters: [{ services: [SERVICE_UUID] },{ name: 'SyncSign-Display-Lite' },{ name: 'SyncSign' } ] };
+  let options = {
+    filters: [
+      { services: [SERVICE_UUID] },
+      { name: "SyncSign-Display-Lite" },
+      { name: "SyncSign" },
+    ],
+  };
 
   bluetoothDevice = null;
   console.log("Requesting Bluetooth Device...");
@@ -55,7 +62,10 @@ async function connect() {
     console.log("Connecting to Bluetooth Device...");
     let server = await bluetoothDevice.gatt.connect();
     console.log("> Bluetooth Device connected");
-    console.log(">>> getPrimaryService", server.getPrimaryService(SERVICE_UUID));
+    console.log(
+      ">>> getPrimaryService",
+      server.getPrimaryService(SERVICE_UUID)
+    );
     let service = await server.getPrimaryService(SERVICE_UUID);
     console.log("service", service);
     console.log("Getting Characteristic...");
@@ -96,6 +106,10 @@ async function enumerateGatt(server) {
       }
       if (characteristic.uuid === CHAR_TEMP_WRITE) {
         charTempWrite = characteristic;
+      }
+      var url = document.location.toString();
+      if (url.indexOf("mxj_render") > -1) {
+        document.querySelector("#send").disabled = false;
       }
       document.querySelector("#disconnect").disabled = false;
       document.querySelector("#upload-temp").disabled = false;
@@ -292,7 +306,11 @@ async function onSendTextOnly() {
   let qrcode = document.querySelector("#qrcode").value;
   try {
     updateDeviceStatus("RESET", null);
-    await sendPacket(ACK_TYPE_DRAW, SUBTYPE_DRAW_SAVE_BINARY_TEMPLATE, templateFile)
+    await sendPacket(
+      ACK_TYPE_DRAW,
+      SUBTYPE_DRAW_SAVE_BINARY_TEMPLATE,
+      templateFile
+    );
     await sendTextOnly(0, [
       customField1,
       customField2,
@@ -304,89 +322,121 @@ async function onSendTextOnly() {
     console.error(error);
   }
 }
+async function onSendTextBymxj() {
+  let name = document.querySelector("#name").value;
+  let status = document.querySelector("#status").value;
+  let busyTime = document.querySelector("#busy-time").value;
+  let stationNumber = document.querySelector("#station-number").value;
+  let time = document.querySelector("#time").value;
+  let qrcode = document.querySelector("#qrcode").value;
+  let SendTexts = nowTemp === 0 ? [name, stationNumber, time, qrcode]: [name, status, busyTime, stationNumber, time, qrcode]
+  try {
+    updateDeviceStatus("RESET", null);
+    await sendTextOnly(nowTemp, SendTexts);
+  } catch (error) {
+    console.error(error);
+  }
+}
+function selectTemp(obj) {
+  var index = obj.selectedIndex;
+  var val = obj.options[index].value;
+  nowTemp = +val;
+  let statusDoc = document.querySelector("#status-box");
+  let busyTimeDoc = document.querySelector("#busy-time-box");
+  if (val === "0"){
+    statusDoc.style.display = "none";
+    busyTimeDoc.style.display = "none";
+  } else {
+    statusDoc.style.display = "flex";
+    busyTimeDoc.style.display = "flex";
+  }
+}
 
 async function loadFile(files) {
-  console.log(files)
-if (files.length === 0) {
-  console.log("请选择文件！");
-  alert("请选择文件");
-  return;
-}
-const reader = new FileReader()
-reader.onload = async function fileReadCompleted() {
-  // 当读取完成时，内容只在`reader.result`中
-  let fdata = new Uint8Array(reader.result)
-  let data = new Uint8Array([0x01,0x00]);
-  data = concatArrayBuffer(data, fdata);
-  console.log(data)
-  templateFile = data
-  document.querySelector("#send").disabled = false;
-};
-reader.readAsArrayBuffer(files[0]);
-
+  console.log(files);
+  if (files.length === 0) {
+    console.log("请选择文件！");
+    alert("请选择文件");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async function fileReadCompleted() {
+    // 当读取完成时，内容只在`reader.result`中
+    let fdata = new Uint8Array(reader.result);
+    let data = new Uint8Array([0x01, 0x00]);
+    data = concatArrayBuffer(data, fdata);
+    console.log(data);
+    templateFile = data;
+    document.querySelector("#send").disabled = false;
+  };
+  reader.readAsArrayBuffer(files[0]);
 }
 
 const sendPacket = async (type, subType, data) => {
-    pkt = buildPacket(type, subType, uint8ArrToInt(data))
-    console.log('pkt length:', pkt.length)
-    arr = []
-    const textEncoderStream  = new TransformStream({
-      transform(chunk, controller) {
-        // console.log('[transform]', chunk);
-        arr.push(END_)
-        encode(chunk, slice, add)
-        arr.push(END_)
-        controller.enqueue(arr);
-      },
-      flush(controller) {
-        console.log('[flush]');
-        controller.terminate();
-      },
-    });
-    const readStream = textEncoderStream.readable;
-    const writeStream = textEncoderStream.writable;
-    const writer = writeStream.getWriter();
+  pkt = buildPacket(type, subType, uint8ArrToInt(data));
+  console.log("pkt length:", pkt.length);
+  arr = [];
+  const textEncoderStream = new TransformStream({
+    transform(chunk, controller) {
+      // console.log('[transform]', chunk);
+      arr.push(END_);
+      encode(chunk, slice, add);
+      arr.push(END_);
+      controller.enqueue(arr);
+    },
+    flush(controller) {
+      console.log("[flush]");
+      controller.terminate();
+    },
+  });
+  const readStream = textEncoderStream.readable;
+  const writeStream = textEncoderStream.writable;
+  const writer = writeStream.getWriter();
 
-    writer.write(pkt);
-    writer.close();
-    console.log("textEncoderStream.locked", textEncoderStream.locked)
-    const reader_ = readStream.getReader();
-    for (let result = await reader_.read(); !result.done; result = await reader_.read()) {
-      console.log('[value]', result.value);
-      let data = new Uint8Array(result.value)
-      await writeDataChunk(data, "TEMP")
-    }
-}
+  writer.write(pkt);
+  writer.close();
+  console.log("textEncoderStream.locked", textEncoderStream.locked);
+  const reader_ = readStream.getReader();
+  for (
+    let result = await reader_.read();
+    !result.done;
+    result = await reader_.read()
+  ) {
+    console.log("[value]", result.value);
+    let data = new Uint8Array(result.value);
+    await writeDataChunk(data, "TEMP");
+  }
+};
 
 // 组装数据包
 const buildPacket = (type, subType, data) => {
   // Header Format: [ EncryptionMethod:2b ] [ Type:3b ] [ SubType:3b ] [PayloadLength:20b] [Reserved:4b]
-  var pkt = []
-  const reserved = 0
-  var _t = (encryptionMethod << 6) | (type << 3) | subType
-  console.log("_t", _t)
-  console.log(encryptionMethod, type, subType)
-  length = data.length
+  var pkt = [];
+  const reserved = 0;
+  var _t = (encryptionMethod << 6) | (type << 3) | subType;
+  console.log("_t", _t);
+  console.log(encryptionMethod, type, subType);
+  length = data.length;
 
-  pkt.push(_t)
-  pkt.push((length & 0xFF))
-  pkt.push((length >> 8) & 0xFF)
-  pkt.push(((length >> 16) & 0x0F) | (reserved << 4))
+  pkt.push(_t);
+  pkt.push(length & 0xff);
+  pkt.push((length >> 8) & 0xff);
+  pkt.push(((length >> 16) & 0x0f) | (reserved << 4));
   // append data
   pkt = pkt.concat(data);
   // append CRC
   pkt = assemblyCrc(pkt);
-  console.log("组装部分", pkt)
+  console.log("组装部分", pkt);
 
   return pkt;
-}
+};
 
 const assemblyCrc = (list) => {
   var crc = caluCRC(0, list);
-  console.log("CRC=", crc)
+  console.log("CRC=", crc);
   var checksumByte1 = crc & 0xff;
   var checksumByte2 = (crc >> 8) & 0xff;
   list.push(checksumByte1);
   list.push(checksumByte2);
   return list;
-}
+};
