@@ -135,7 +135,7 @@ async function sendTextOnly(templateId, strings) {
   for (i = 0; i < strings.length; i++) {
     if (strings[i].length <= 0x7f) {
       let enc = new TextEncoder();
-      let len = enc.encode(strings[i]).length & 0x7f;
+      let len = new Uint8Array(enc.encode(strings[i]).length & 0x7f);
       let text = enc.encode(strings[i]);
       let mergedArray = new Uint8Array(
         textData.length + len.length + text.length
