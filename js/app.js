@@ -11,6 +11,9 @@ const CHAR_NOTIFY = "0000fff2-0000-1000-8000-00805f9b34fb"; // 0xFFF1
 const CHAR_TXT_WRITE = "0000fff2-0000-1000-8000-00805f9b34fb"; // 0xFFF2
 const CHAR_TEMP_WRITE = "0000fff1-0000-1000-8000-00805f9b34fb"; // 0xFFF2
 
+const TIME_SERVICE_UUID = 0x1805
+const TIME_CHAR_WRITE = "00002a2b-0000-1000-8000-00805f9b34fb" //0x2a2b
+
 const ACK_TYPE_LINK = 0x00;
 const ACK_SUBTYPE_LINK_OK = 0x00;
 const ACK_SUBTYPE_LINK_ERR = 0x01;
@@ -28,13 +31,8 @@ let templateFile = null;
 let nowTemp = 0;
 
 async function onScanButtonClick() {
-  let options = {
-    filters: [
-      { services: [SERVICE_UUID] },
-      { name: "SyncSign-Display-Lite" },
-      { name: "SyncSign" },
-    ],
-  };
+  let options = { filters: [{ services: [SERVICE_UUID,TIME_SERVICE_UUID] },{ namePrefix: "greenbird-" },{ name: 'SyncSign-Display-Lite' }, { name: 'SyncSign' }] };
+  // let options = { filters: [{ namePrefix: "greenbird-" }] };
 
   bluetoothDevice = null;
   console.log("Requesting Bluetooth Device...");
@@ -304,6 +302,11 @@ async function onSendTextOnly() {
   let customField3 = document.querySelector("#custom-field3").value;
   let displayId = document.querySelector("#display-id").value;
   let qrcode = document.querySelector("#qrcode").value;
+  let tplId = parseInt(document.querySelector("#tpl-id").value);
+  if (tplId < 0 || tplId > 4) {
+    tplId = 0
+  }
+  console.info("tplId=",tplId);
   try {
     updateDeviceStatus("RESET", null);
     await sendPacket(
@@ -311,7 +314,8 @@ async function onSendTextOnly() {
       SUBTYPE_DRAW_SAVE_BINARY_TEMPLATE,
       templateFile
     );
-    await sendTextOnly(0, [
+    //HERER
+    await sendTextOnly(tplId, [
       customField1,
       customField2,
       displayId,
@@ -363,7 +367,11 @@ async function loadFile(files) {
   reader.onload = async function fileReadCompleted() {
     // 当读取完成时，内容只在`reader.result`中
     let fdata = new Uint8Array(reader.result);
-    let data = new Uint8Array([0x01, 0x00]);
+    let tplId = parseInt(document.querySelector("#tpl-id").value);
+    if (tplId < 0 || tplId > 4) {
+      tplId = 0
+    }
+    let data = new Uint8Array([0x01, tplId]);//HERER
     data = concatArrayBuffer(data, fdata);
     console.log(data);
     templateFile = data;
