@@ -91,10 +91,13 @@ async function enumerateGatt(server) {
   const sPromises = services.map(async (service) => {
     const characteristics = await service.getCharacteristics();
     const cPromises = characteristics.map(async (characteristic) => {
-      let descriptors = await characteristic.getDescriptors();
-      descriptors = descriptors.map(
-        (descriptor) => `\t\t|_descriptor: ${descriptor.uuid}`
-      );
+      // issue: https://github.com/WebBluetoothCG/web-bluetooth/issues/532
+      // let descriptors = await characteristic.getDescriptors();
+      // descriptors = descriptors.map(
+      //   (descriptor) => `\t\t|_descriptor: ${descriptor.uuid}`
+      // );
+      // console.log("characteristic", characteristic)
+      let descriptors = []
       descriptors.unshift(`\t|_characteristic: ${characteristic.uuid}`);
       if (characteristic.uuid === CHAR_NOTIFY) {
         charNotify = characteristic;
