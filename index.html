@@ -15,13 +15,6 @@
       <h1>SyncSign Display Example</h1>
       <p>Render display over BLE</p>
       <form>
-        <button class="btn btn-primary" id="scan">Scan</button>
-        <button class="btn btn-primary" id="disconnect" disabled>Disconnect</button>
-        <div class="file-container" style="display:inline-block;position:relative;overflow: hidden;vertical-align:middle">
-            <button class="btn btn-primary fileinput-button" id="upload-temp" type="button">Upload template</button>
-            <input type="file" id="jobData" accept=".bin" onchange="loadFile(this.files)" style="position:absolute;top:0;left:0;font-size:34px; opacity:0">
-        </div>
-        <hr />
         <div class="input-group mb-3">
           <span class="input-group-text">CustomField 1</span>
           <input
@@ -76,7 +69,18 @@
             placeholder="range: 0~5"
           />
         </div>
-        <button class="btn btn-primary" id="send" disabled>Send to Display</button>
+        <hr />
+        <p>注意：</p>
+        <p>1.请先填入 Template ID 后，再点击 【载入模板文件】载如模板！否则默认模板为0号</p>
+        <p>2.【载入模板文件】 时，打开F12确认文件被重新加载！(看到打印的数据：Uint8Array(xxx) [...])</p>
+        <button class="btn btn-primary" id="scan">开始扫描蓝牙设备</button>
+        <button class="btn btn-primary" id="disconnect" disabled>断开设备连接</button>
+        <div class="file-container" style="display:inline-block;position:relative;overflow: hidden;vertical-align:middle">
+            <button class="btn btn-primary fileinput-button" id="upload-temp" type="button">载入模板文件</button>
+            <input type="file" id="jobData" accept=".bin" onchange="loadFile(this.files)" style="position:absolute;top:0;left:0;font-size:34px; opacity:0">
+        </div>
+        <hr />
+        <button class="btn btn-primary" id="send" disabled>往设备发送数据</button>
         <hr/>
         <p>
           <span id="data-sent">N</span> /

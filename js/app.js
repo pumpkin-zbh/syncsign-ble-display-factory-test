@@ -32,7 +32,7 @@ let nowTemp = 0;
 
 async function onScanButtonClick() {
   let options = { filters: [{ services: [SERVICE_UUID,TIME_SERVICE_UUID] },{ namePrefix: "greenbird-" },{ name: 'SyncSign-Display-Lite' }, { name: 'SyncSign' }] };
-  // let options = { filters: [{ namePrefix: "greenbird-" }] };
+  // let options = { filters: [{ services: [SERVICE_UUID,TIME_SERVICE_UUID]},{ namePrefix: "greenbird-" }] };//只扫描名称为greenbird的设备
 
   bluetoothDevice = null;
   console.log("Requesting Bluetooth Device...");
