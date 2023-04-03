@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SyncSign Display BLE Control Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.0-beta3/js/bootstrap.bundle.min.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>恒泰信 ble-uart 透传esp32模组数据收发测试页面</h1>
+      <p>测试数据示例(请复制到数据发送框)：1234567890abcdefghijklmnopqrstuvwsyz</p>
+      <form>
+        <div class="input-group mb-3">
+          <span class="input-group-text">需要发送的数据</span>
+          <input
+            type="text"
+            id="custom-field1"
+            class="form-control"
+          />
+        </div>
+        <hr />
+        <button class="btn btn-primary" id="scan">开始扫描蓝牙设备</button>
+        <button class="btn btn-primary" id="disconnect" disabled>断开设备连接</button>
+        <hr />
+        <button class="btn btn-primary" id="send" disabled>发送数据</button>
+        <hr/>
+        <p>下面的两项示例数据可以使用串口助手（如SSCOM）模拟上位机给蓝牙模组发送数据，以16进制，波特率115200发送，IO17是模组的TX,IO16是模组的RX,浏览器F12可以通过控制台查看所有接收到的数据</p>
+        <p>例子1，发送hello：AA 55 B0 8D 05 00 68 65 6C 6C 6F</p>
+        <p>例子2，发送36个字符：AA 55 B0 FE 24 00 31 32 33 34 35 36 37 38 39 30 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 73 79 7A</p>
+        <p>接收到的数据：</p>
+        <p>
+          <span id="data-sent">N</span>
+        </p>
+      </form>
+    </div>
+
+    <script>
+      log = console.log;
+      function isWebBluetoothEnabled() {
+        if (navigator.bluetooth) {
+          return true;
+        } else {
+          console.log(
+            "Web Bluetooth API is not available.\n" +
+              'Please make sure the "Experimental Web Platform features" flag is enabled.'
+          );
+          return false;
+        }
+      }
+    </script>
+    <script src="./app.js"></script>
+    <script>
+      document
+        .querySelector("#scan")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          if (isWebBluetoothEnabled()) onScanButtonClick();
+        });
+      document
+        .querySelector("#disconnect")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          if (isWebBluetoothEnabled()) onDisconnectButtonClick();
+        });
+      document
+        .querySelector("#send")
+        .addEventListener("click", function (event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          if (isWebBluetoothEnabled()) onSendTextOnly();
+        });
+    </script>
+  </body>
+</html>
