@@ -13,7 +13,12 @@
   <body>
     <div class="container">
       <h1>恒泰信 ble-uart 透传esp32模组数据收发测试页面</h1>
-      <p>测试数据示例(请复制到数据发送框)：1234567890abcdefghijklmnopqrstuvwsyz</p>
+      <hr />
+      <button class="btn btn-primary" id="scan">开始扫描蓝牙设备</button>
+      <button class="btn btn-primary" id="disconnect" disabled>断开设备连接</button>
+      <hr />
+      <p>测试准备：使用串口助手（如SSCOM）模拟上位机通过串口给蓝牙模组发送数据，以16进制格式，波特率115200发送，IO17是模组的TX,IO16是模组的RX；浏览器F12可以通过控制台查看所有接收到的数据 </p>
+      <p>测试1：请复制到数据发送框后，点击发送数据，出口助手会显示接收到的数据(请复制到数据发送框)：1234567890abcdefghijklmnopqrstuvwsyz</p>
       <form>
         <div class="input-group mb-3">
           <span class="input-group-text">需要发送的数据</span>
@@ -23,19 +28,20 @@
             class="form-control"
           />
         </div>
-        <hr />
-        <button class="btn btn-primary" id="scan">开始扫描蓝牙设备</button>
-        <button class="btn btn-primary" id="disconnect" disabled>断开设备连接</button>
+        <p> 串口助手会接收到两帧数据：</p>
+        <p> AA 55 B0 E5 14 00 31 32 33 34 35 36 37 38 39 30 61 62 63 64 65 66 67 68 69 6A</p>
+        <p> AA 55 B0 F4 10 00 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 73 79 7A</p>
         <hr />
         <button class="btn btn-primary" id="send" disabled>发送数据</button>
         <hr/>
-        <p>下面的两项示例数据可以使用串口助手（如SSCOM）模拟上位机给蓝牙模组发送数据，以16进制，波特率115200发送，IO17是模组的TX,IO16是模组的RX,浏览器F12可以通过控制台查看所有接收到的数据</p>
-        <p>例子1，发送hello：AA 55 B0 8D 05 00 68 65 6C 6C 6F</p>
+        <p>测试2：从串口助手发送数据到浏览器页面，请复制下面的数字到串口助手的发送框：</p>
+        <p>例子1，发送hello：AA 55 B0 8D 05 00 68 65 6C 6C 6F </p>
         <p>例子2，发送36个字符：AA 55 B0 FE 24 00 31 32 33 34 35 36 37 38 39 30 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 73 79 7A</p>
         <p>接收到的数据：</p>
         <p>
           <span id="data-sent">N</span>
         </p>
+        <p> 例子1的数据会接收到：0x68,0x65,0x6c,0x6c,0x6f，例子2的数据比较长，打开F12查看</p>
       </form>
     </div>
 
