@@ -71,14 +71,15 @@
         </div>
         <hr />
         <p>注意：</p>
-        <p>1.请先填入 Template ID 后，再点击 【载入模板文件】载如模板！否则默认模板为0号</p>
-        <p>2.【载入模板文件】 时，打开F12确认文件被重新加载！(看到打印的数据：Uint8Array(xxx) [...])</p>
+        <p>1. ！！！请先载入模板文件后，再开始扫描蓝牙设备，否则发送数据的按钮不被使能</p>
+        <p>2. 请先填入 Template ID 后，再点击 【载入模板文件】载如模板！否则默认模板为0号</p>
+        <p>3.【载入模板文件】 时，打开F12确认文件被重新加载！(看到打印的数据：Uint8Array(xxx) [...])</p>
+        <div class="file-container" style="display:inline-block;position:relative;overflow: hidden;vertical-align:middle">
+          <button class="btn btn-primary fileinput-button" id="upload-temp" type="button">载入模板文件</button>
+          <input type="file" id="jobData" accept=".bin" onchange="loadFile(this.files)" style="position:absolute;top:0;left:0;font-size:34px; opacity:0">
+        </div>
         <button class="btn btn-primary" id="scan">开始扫描蓝牙设备</button>
         <button class="btn btn-primary" id="disconnect" disabled>断开设备连接</button>
-        <div class="file-container" style="display:inline-block;position:relative;overflow: hidden;vertical-align:middle">
-            <button class="btn btn-primary fileinput-button" id="upload-temp" type="button">载入模板文件</button>
-            <input type="file" id="jobData" accept=".bin" onchange="loadFile(this.files)" style="position:absolute;top:0;left:0;font-size:34px; opacity:0">
-        </div>
         <hr />
         <button class="btn btn-primary" id="send" disabled>往设备发送数据</button>
         <hr/>
